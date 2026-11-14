@@ -14,6 +14,11 @@ Guardian scores every payment against the customer's own behaviour, holds risky 
 ![Three.js](https://img.shields.io/badge/Three.js-R3F-000000?logo=threedotjs&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-node%3Asqlite-003B57?logo=sqlite&logoColor=white)
 ![Status](https://img.shields.io/badge/status-demo%20%2F%20prototype-7a5af8)
+[![Vercel](https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel&logoColor=white)](https://guardian-amber.vercel.app)
+
+### [🚀 Live demo → guardian-amber.vercel.app](https://guardian-amber.vercel.app)
+
+<sub>Sign in with any demo account (password <code>guardian123</code>). Everything runs in your browser, and the sample data resets when you reload.</sub>
 
 <br />
 
@@ -25,6 +30,7 @@ Guardian scores every payment against the customer's own behaviour, holds risky 
 
 ## Contents
 
+- [Live demo](#live-demo)
 - [Why Guardian](#why-guardian)
 - [Highlights](#highlights)
 - [Screenshots](#screenshots)
@@ -42,6 +48,16 @@ Guardian scores every payment against the customer's own behaviour, holds risky 
 - [Roadmap](#roadmap)
 
 ---
+
+## Live demo
+
+**[guardian-amber.vercel.app](https://guardian-amber.vercel.app)**
+
+1. Pick a demo account on the sign-in page. **Aarav (analyst)** is a good place to start.
+2. Open **Demo Scenarios** and run **Scenario 1** (family approval) or **Scenario 2** (payment recovery). The demo tells you when to switch to the family member or the administrator.
+3. On **Geospatial Intelligence**, click **Use live GPS** and allow location access to plot your real position, or switch to the **3D globe**.
+
+The hosted demo is the self-contained build: the Guardian backend runs inside your browser, so each visitor gets their own copy of the sample data, and it resets when you reload. Run the project locally (see [Quick start](#quick-start)) to use the Node server with a persistent database.
 
 ## Why Guardian
 
@@ -135,7 +151,7 @@ cd web && npm run dev
 | `npm run build` | Builds the web app into `web/dist` |
 | `npm start` | Starts the API and serves the built app |
 | `npm run seed` | Resets the database to fresh sample data |
-| `npm --prefix web run build:inpage` | Builds a single self-contained HTML file that runs the backend inside the browser |
+| `npm --prefix web run build:inpage` | Builds the self-contained site used for the Vercel deployment (`web/dist-inpage`) |
 
 ### Demo accounts
 
@@ -292,9 +308,11 @@ guardian/
 
 ## Deploy on Vercel
 
+The [live demo](https://guardian-amber.vercel.app) is deployed this way, and every push to `main` redeploys it automatically.
+
 The repository includes a `vercel.json` that deploys the **self-contained build**: one static page that runs the Guardian backend (the same routes and services, on SQLite compiled to JavaScript) inside each visitor's browser. No server or database hosting is needed.
 
-1. Import the repository at [vercel.com/new](https://vercel.com/new).
+1. Fork this repository, then import it at [vercel.com/new](https://vercel.com/new).
 2. Keep the detected settings. `vercel.json` already sets the install command, the build command (`npm --prefix web run build:inpage`), the output folder (`web/dist-inpage`) and SPA rewrites.
 3. Click **Deploy**.
 
