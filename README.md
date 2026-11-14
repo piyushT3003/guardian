@@ -124,7 +124,7 @@ Every decision is explained, recorded and visible to the security team.
 **Requirements:** Node.js **22.5 or newer**. The backend uses the built-in `node:sqlite` module, so no database server is needed.
 
 ```bash
-git clone <this-repository-url>
+git clone https://github.com/piyushT3003/guardian.git
 cd guardian
 npm run setup     # install server and web dependencies
 npm run build     # build the web app

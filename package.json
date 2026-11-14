@@ -1,7 +1,7 @@
 {
   "name": "guardian",
   "private": true,
-  "description": "Guardian — AI-assisted payment fraud prevention and recovery platform",
+  "description": "Guardian — explainable payment fraud prevention and recovery platform (rules + statistical anomaly scoring)",
   "scripts": {
     "setup": "npm --prefix server install && npm --prefix web install",
     "build": "npm --prefix web run build",
