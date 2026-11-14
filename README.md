@@ -34,6 +34,7 @@ Guardian scores every payment against the customer's own behaviour, holds risky 
 - [The 15 workspaces](#the-15-workspaces)
 - [Tech stack](#tech-stack)
 - [Project structure](#project-structure)
+- [Deploy on Vercel](#deploy-on-vercel)
 - [Configuration](#configuration)
 - [API overview](#api-overview)
 - [Security model](#security-model)
@@ -288,6 +289,16 @@ guardian/
 │       └── inpage/              # browser-only backend adapters
 └── docs/screens/                # screenshots of every page
 ```
+
+## Deploy on Vercel
+
+The repository includes a `vercel.json` that deploys the **self-contained build**: one static page that runs the Guardian backend (the same routes and services, on SQLite compiled to JavaScript) inside each visitor's browser. No server or database hosting is needed.
+
+1. Import the repository at [vercel.com/new](https://vercel.com/new).
+2. Keep the detected settings. `vercel.json` already sets the install command, the build command (`npm --prefix web run build:inpage`), the output folder (`web/dist-inpage`) and SPA rewrites.
+3. Click **Deploy**.
+
+Each visitor gets their own fresh copy of the sample data in their browser, and it resets when they reload the page. To run one shared database for everyone, deploy the full Node server (`npm run build && npm start`) to a host with persistent storage, such as Render, Railway, Fly.io or a VPS.
 
 ## Configuration
 

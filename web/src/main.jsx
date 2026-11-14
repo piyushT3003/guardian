@@ -16,7 +16,10 @@ if (import.meta.env.VITE_INPAGE) {
     .then(({ bootBackend }) => bootBackend((m) => { if (status) status.textContent = m; }))
     .then(() => {
       document.getElementById('boot')?.remove();
-      root.render(<React.StrictMode><MemoryRouter initialEntries={['/login']}><App /></MemoryRouter></React.StrictMode>);
+      const app = import.meta.env.VITE_INPAGE_ROUTER === 'memory'
+        ? <MemoryRouter initialEntries={['/login']}><App /></MemoryRouter>
+        : <BrowserRouter><App /></BrowserRouter>;
+      root.render(<React.StrictMode>{app}</React.StrictMode>);
     })
     .catch((e) => { console.error(e); if (status) status.textContent = `Guardian could not start: ${e.message}`; });
 } else {

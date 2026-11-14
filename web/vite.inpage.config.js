@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
+// GUARDIAN_ARTIFACT=1 builds for a sandboxed host (no outside map tiles, in-memory routing).
+const ARTIFACT = process.env.GUARDIAN_ARTIFACT === '1';
 const S = path.resolve(__dirname, '../server/src');
 const I = path.resolve(__dirname, 'src/inpage');
 const swap = { [`${S}/db.js`]: `${I}/db.js`, [`${S}/lib/auth.js`]: `${I}/auth.js`, [`${S}/lib/events.js`]: `${I}/events.js` };
@@ -18,6 +20,6 @@ export default defineConfig({
     } },
     react(), viteSingleFile(),
   ],
-  define: { 'process.env': '{}', 'process.version': '"in-page"', 'process.argv': '[]', 'import.meta.env.VITE_INPAGE': '"1"', 'import.meta.env.VITE_MAP_TILE_URL': '""' },
+  define: { 'process.env': '{}', 'process.version': '"in-page"', 'process.argv': '[]', 'import.meta.env.VITE_INPAGE': '"1"', 'import.meta.env.VITE_INPAGE_ROUTER': ARTIFACT ? '"memory"' : '"browser"', ...(ARTIFACT ? { 'import.meta.env.VITE_MAP_TILE_URL': '""' } : {}) },
   build: { outDir: 'dist-inpage', assetsInlineLimit: 100000000, chunkSizeWarningLimit: 20000, rollupOptions: { input: 'index.inpage.html' } },
 });

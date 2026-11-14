@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm --prefix web ci",
+  "buildCommand": "npm --prefix web run build:inpage",
+  "outputDirectory": "web/dist-inpage",
+  "framework": null,
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.inpage.html" }]
+}

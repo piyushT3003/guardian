@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:inpage": "vite build -c vite.inpage.config.js"
+    "build:inpage": "vite build -c vite.inpage.config.js",
+    "build:artifact": "GUARDIAN_ARTIFACT=1 vite build -c vite.inpage.config.js"
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
