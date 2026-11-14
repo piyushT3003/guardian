@@ -1,150 +1,355 @@
-# Guardian: AI Payment Safety
+<div align="center">
 
-Guardian is a multi-page fraud prevention and payment recovery platform. It scores every payment against the customer's own history and holds risky payments until a trusted family member approves them. When a risky payment does settle, the administrator gets a five-minute window to recover it.
+<img src="web/public/guardian.svg" alt="Guardian logo" width="84" />
 
-```
-guardian/
-├── server/   Node 22 + Express + SQLite (node:sqlite). The database is the source of truth.
-├── web/      React 18 + Vite, Framer Motion, React Three Fiber, Leaflet, Recharts
-└── docs/screens/  One screen design for each of the 15 pages, plus sign-in and the demo launcher (1440×900 @2x)
-```
+# Guardian
 
-## Run it
+**Stop fraudulent payments before they settle, and recover the ones that slip through.**
 
-Requires **Node 22.5 or later**, because the backend uses the built-in `node:sqlite` module.
+Guardian scores every payment against the customer's own behaviour, holds risky payments until a trusted family member approves them, and gives administrators a five-minute window to reverse a mistaken approval.
+
+![Node](https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-R3F-000000?logo=threedotjs&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-node%3Asqlite-003B57?logo=sqlite&logoColor=white)
+![Status](https://img.shields.io/badge/status-demo%20%2F%20prototype-7a5af8)
+
+<br />
+
+<img src="docs/screens/01-overview.png" alt="Guardian overview dashboard" width="100%" />
+
+</div>
+
+---
+
+## Contents
+
+- [Why Guardian](#why-guardian)
+- [Highlights](#highlights)
+- [Screenshots](#screenshots)
+- [Quick start](#quick-start)
+- [Demo scenarios](#demo-scenarios)
+- [How it works](#how-it-works)
+- [The 15 workspaces](#the-15-workspaces)
+- [Tech stack](#tech-stack)
+- [Project structure](#project-structure)
+- [Configuration](#configuration)
+- [API overview](#api-overview)
+- [Security model](#security-model)
+- [What is real and what is simulated](#what-is-real-and-what-is-simulated)
+- [Roadmap](#roadmap)
+
+---
+
+## Why Guardian
+
+Most payment fraud against individuals is authorised by the victim: a convincing call or message, a new payee, an unusual amount, a payment from somewhere the person has never been. By the time anyone notices, the money has gone.
+
+Guardian adds two safety nets:
+
+1. **Before settlement:** suspicious payments are held until a trusted family member approves or holds them.
+2. **After settlement:** if a high-risk payment is approved by mistake, a recovery request opens automatically with a five-minute deadline for an administrator to reverse it.
+
+Every decision is explained, recorded and visible to the security team.
+
+## Highlights
+
+| | |
+|---|---|
+| 🛡️ **Explainable risk scoring** | Six signals (location, recipient novelty, amount deviation, behaviour, velocity and a statistical anomaly model), each with evidence and its share of the score. |
+| 👨‍👩‍👧 **Family approval** | High-risk payments wait in `PENDING_FAMILY_APPROVAL`. Only the designated family member can approve or hold them. |
+| ⏱️ **Five-minute recovery** | Settled high-risk payments open a recovery window with a server-side deadline and a live countdown. |
+| 🌍 **Geospatial intelligence** | A full-page map and a 3D globe showing live GPS, historical and demo locations, familiar places, travel arcs and impossible-travel detection. |
+| 🔎 **Investigation workspace** | A case queue, fraud indicators, related transactions, analyst notes and release / block / escalate decisions. |
+| 📊 **Analytics and reports** | Risk trends, signal frequency and outcome breakdowns, with six exportable reports (CSV and JSON). |
+| 📜 **Audit trail** | Every ingestion, analysis, decision, approval, payment and recovery is recorded with before and after states. |
+| ⚡ **Real-time** | Server-sent events push changes to every open screen instantly. |
+| ✨ **Premium interface** | A 3D shield scene, cursor-lit glass cards, smooth page transitions and success animations, with reduced-motion support. |
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screens/03-transaction-intelligence.png" alt="Transaction Intelligence" /><br /><sub><b>Transaction Intelligence:</b> why a payment was flagged</sub></td>
+    <td width="50%"><img src="docs/screens/05-geospatial-intelligence.png" alt="Geospatial Intelligence" /><br /><sub><b>Geospatial Intelligence:</b> distance from familiar places</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screens/06-family-approval-centre.png" alt="Family Approval Centre" /><br /><sub><b>Family Approval Centre:</b> approve or keep on hold</sub></td>
+    <td><img src="docs/screens/07-recovery-operations.png" alt="Recovery Operations" /><br /><sub><b>Recovery Operations:</b> five-minute recovery window</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screens/04-fraud-investigation.png" alt="Fraud Investigation" /><br /><sub><b>Fraud Investigation:</b> analyst case workspace</sub></td>
+    <td><img src="docs/screens/09-risk-analytics.png" alt="Risk Analytics" /><br /><sub><b>Risk Analytics:</b> trends and outcomes</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screens/02-live-transactions.png" alt="Live Transactions" /><br /><sub><b>Live Transactions:</b> filter, sort and inspect</sub></td>
+    <td><img src="docs/screens/16-demo-scenarios.png" alt="Demo Scenarios" /><br /><sub><b>Demo Scenarios:</b> guided end-to-end flows</sub></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>More screens</b></summary>
+<br />
+
+| Customer Profiles | Scam Pattern Timeline | Notifications |
+|---|---|---|
+| <img src="docs/screens/08-customer-profiles.png" alt="Customer Profiles" /> | <img src="docs/screens/10-scam-pattern-timeline.png" alt="Scam Pattern Timeline" /> | <img src="docs/screens/11-notifications.png" alt="Notifications" /> |
+| **Audit Trail** | **System Health** | **Reports** |
+| <img src="docs/screens/12-audit-trail.png" alt="Audit Trail" /> | <img src="docs/screens/13-system-health.png" alt="System Health" /> | <img src="docs/screens/14-reports.png" alt="Reports" /> |
+| **Settings** | **Sign in** | **All pages** |
+| <img src="docs/screens/15-settings.png" alt="Settings" /> | <img src="docs/screens/00-sign-in.png" alt="Sign in" /> | <img src="docs/guardian-screen-board.png" alt="All pages" /> |
+
+</details>
+
+## Quick start
+
+**Requirements:** Node.js **22.5 or newer**. The backend uses the built-in `node:sqlite` module, so no database server is needed.
 
 ```bash
-npm run setup        # installs server + web dependencies
-npm run build        # builds the web app into web/dist
-npm start            # API + built app on http://localhost:4000
+git clone <this-repository-url>
+cd guardian
+npm run setup     # install server and web dependencies
+npm run build     # build the web app
+npm start         # serve the API and the app on http://localhost:4000
 ```
 
-To develop with hot reload, open two terminals:
+Open **http://localhost:4000** and pick a demo account on the sign-in page. The database is created and seeded with 30 days of sample activity on first start.
+
+### Development mode (hot reload)
 
 ```bash
-cd server && GUARDIAN_JWT_SECRET=dev npm run dev     # API on :4000
-cd web && npm run dev                                # UI on :5173 (proxies /api)
+# terminal 1: API on :4000 (restarts on change)
+cd server && npm run dev
+
+# terminal 2: web app on :5173 (proxies /api to :4000)
+cd web && npm run dev
 ```
 
-On first start the database is seeded automatically.
+### Useful scripts
 
-### Self-contained version (no server)
+| Command | What it does |
+|---|---|
+| `npm run setup` | Installs dependencies for `server/` and `web/` |
+| `npm run build` | Builds the web app into `web/dist` |
+| `npm start` | Starts the API and serves the built app |
+| `npm run seed` | Resets the database to fresh sample data |
+| `npm --prefix web run build:inpage` | Builds a single self-contained HTML file that runs the backend inside the browser |
 
-`npm --prefix web run build:inpage` builds `web/dist-inpage/index.inpage.html`, a single file that runs the same API routes and services inside the browser on SQLite compiled to JavaScript (sql.js). Its data lives in memory and resets when the page reloads. Live GPS, CSV downloads and map tiles depend on what the hosting page allows. To reseed, run `cd server && npm run seed -- --reset`.
+### Demo accounts
 
-### Demo accounts (password `guardian123`)
+All demo accounts use the password **`guardian123`**. Every person and payment in the sample data is fictional.
 
 | Account | Role | Can do |
 |---|---|---|
-| aarav@guardian.example (Aarav Sharma) | Security Analyst | Monitor, investigate, add notes, release or block held payments, run demos |
-| neha@guardian.example (Neha Kapoor) | Administrator | Everything an analyst can, plus recovery decisions, settings and webhooks |
-| priya@guardian.example (Priya Sharma) | Trusted family (Ramesh) | Approve or hold Ramesh's protected payments (Scenario 1) |
-| arjun@guardian.example (Arjun Rao) | Trusted family (Sunita) | Approve or hold Sunita's protected payments (Scenario 2) |
+| `aarav@guardian.example` | Security Analyst | Monitor, investigate, add notes, release or block held payments |
+| `neha@guardian.example` | Administrator | Everything an analyst can, plus recovery decisions, settings and webhooks |
+| `priya@guardian.example` | Trusted family | Approve or hold Ramesh Sharma's protected payments (Scenario 1) |
+| `arjun@guardian.example` | Trusted family | Approve or hold Sunita Rao's protected payments (Scenario 2) |
 
-The profile menu has a **Switch demo account** option. It performs a real sign-in, so the API enforces every permission.
+Use **Switch demo account** in the profile menu to change roles. It performs a real sign-in, so the API still enforces every permission. Set `GUARDIAN_DEMO_MODE=false` to hide demo accounts.
 
-### Environment
+## Demo scenarios
 
-| Variable | Where | Purpose |
-|---|---|---|
-| `GUARDIAN_JWT_SECRET` | server | Token signing secret. **Required in production.** If unset, the server uses an ephemeral secret. |
-| `GUARDIAN_DB` | server | SQLite file path (default `server/data/guardian.db`) |
-| `GUARDIAN_DEMO_MODE=false` | server | Hides the demo account list and one-click sign-in |
-| `GUARDIAN_DEMO_PASSWORD` | server | Seeded password for the demo accounts |
-| `GUARDIAN_SMS_PROVIDER_URL` | server | Marks an external SMS/email provider as configured (see below) |
-| `GUARDIAN_CORS_ORIGIN` | server | Comma-separated list of allowed origins |
-| `PORT` | server | API port (default 4000) |
-| `VITE_API_URL` | web | API base (default `/api`) |
-| `VITE_MAP_TILE_URL`, `VITE_MAP_ATTRIBUTION` | web | Raster map tiles (default CARTO Light). Leave empty to use only the built-in vector basemap. |
+Open **Demo Scenarios** from the sidebar or the Overview page. Both scenarios run against the real backend and database.
 
-## Architecture
+### Scenario 1: family-assisted fraud prevention
 
-```
-server/src
-├── db.js                    schema, IMMEDIATE transactions, helpers
-├── lib/auth.js              scrypt passwords, HMAC-signed JWT, role guards
-├── lib/events.js            server-sent events bus (real-time UI)
-├── lib/geo.js               haversine distance, reverse geocoding to city
-├── services/fraudEngine.js  6 explainable signals + statistical anomaly model
-├── services/location.js     familiar places, distance, impossible travel
-├── services/stateMachine.js the only path for status changes (compare-and-set on status+version)
-├── services/operations.js   ingestion → analysis → decision → family approval → payment simulator → recovery, deadline sweeper, investigations
-├── services/core.js         settings, audit trail, notifications, HMAC-signed outbound webhooks
-├── services/demo.js         the two flagship scenarios (call the real pipeline)
-├── routes/*.js              REST API, grouped by domain
-└── seed.js                  30-day dataset, every transaction ingested through the live pipeline
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Customer
+    participant G as Guardian
+    participant S as Security team
+    participant F as Family member
+    C->>G: Two routine payments, then ₹9,999 to a new merchant 500 km away
+    G->>G: Score signals (location, recipient, amount, velocity…)
+    G->>S: High-risk alert
+    G->>F: Approval request
+    Note over G: Payment held in PENDING_FAMILY_APPROVAL
+    F->>G: Keep payment on hold (or approve)
+    G->>G: Validate the decision, update state, write the audit trail
 ```
 
-**Transaction states:** `RECEIVED → ANALYSING → COMPLETED | UNDER_REVIEW | PENDING_FAMILY_APPROVAL | ON_HOLD`. From there, `APPROVED → PROCESSING → COMPLETED → RECOVERY_PENDING → RECOVERING → RECOVERED`. The terminal states also include `BLOCKED`, `RECOVERY_DECLINED`, `RECOVERY_EXPIRED` and `RECOVERY_FAILED`. Any transition outside this graph returns `409 INVALID_TRANSITION`.
+### Scenario 2: recovery after a mistaken approval
 
-**Integrity rules:**
+```mermaid
+sequenceDiagram
+    autonumber
+    participant F as Family member
+    participant G as Guardian
+    participant P as Payment simulator
+    participant A as Administrator
+    G->>F: ₹25,000 to a brand-new wallet, 1,100+ km away (score ≈ 95)
+    F->>G: Approve (by mistake)
+    G->>P: Settle payment
+    P-->>G: Settled
+    G->>A: Recovery request with a five-minute deadline
+    A->>G: Initiate payment recovery
+    G->>P: Reverse payment
+    P-->>G: Reversal confirmed
+    Note over G,A: Shown as Recovered only after confirmation
+```
 
-- Every sensitive action is authorised on the backend. Only the designated family member's own account can decide an approval. Only administrators can decide a recovery or change settings.
-- Decisions use conditional `UPDATE … WHERE status = 'PENDING'`, so a second click returns `409 ALREADY_DECIDED`.
-- Clients send `Idempotency-Key` headers, and a replayed request returns the stored response.
-- Deadlines are stored in the database. The server rejects late actions (`410 EXPIRED`), and a sweeper running every 2 seconds expires open windows. Countdowns in the browser are synchronised to the server clock.
-- Payment settlement and reversal are asynchronous in the payment simulator. The UI shows **Recovered** only after the simulator confirms.
+If no decision is made before the deadline, the window expires and the recovery actions are disabled.
+
+## How it works
+
+```mermaid
+flowchart LR
+    I[Payment ingested] --> A[Fraud engine<br/>6 explainable signals]
+    A --> D{Risk decision}
+    D -- low --> OK[Settled]
+    D -- medium --> R[Analyst review]
+    D -- high --> FA[Family approval]
+    R -- release --> OK
+    R -- block --> B[Blocked]
+    FA -- hold --> H[On hold]
+    FA -- approve --> OK
+    OK -- "score ≥ auto-recovery threshold" --> RW[Recovery window · 5 min]
+    RW -- initiate --> RV[Recovered]
+    RW -- decline --> RD[Declined]
+    RW -- deadline passes --> EX[Expired]
+```
+
+### Risk signals
+
+| Signal | Default weight | What it measures |
+|---|---:|---|
+| Unusual location | 30 | Distance from home and frequently used cities, plus impossible travel since the previous payment |
+| New recipient | 22 | Whether the customer has paid this recipient before, and how new the recipient is on the platform |
+| Amount anomaly | 22 | Log-scale z-score against the customer's trusted payment history |
+| Transaction velocity | 10 | Payments in the previous 15 and 60 minutes, and repeats to the same payee |
+| Behavioural anomaly | 8 | Unusual time of day and repeat payments to a new recipient |
+| Anomaly model | 8 | Multivariate z-distance across amount, distance and hour |
+
+The default thresholds are **medium ≥ 40**, **high ≥ 70** and **auto-recovery ≥ 85**. Thresholds, weights and time windows can be changed under **Settings** (administrators only).
+
+### Transaction states
+
+`RECEIVED → ANALYSING → COMPLETED | UNDER_REVIEW | PENDING_FAMILY_APPROVAL | ON_HOLD`, then `APPROVED → PROCESSING → COMPLETED → RECOVERY_PENDING → RECOVERING → RECOVERED`. Terminal states also include `BLOCKED`, `RECOVERY_DECLINED`, `RECOVERY_EXPIRED` and `RECOVERY_FAILED`. Any transition outside this graph is rejected with `409 INVALID_TRANSITION`.
 
 ## The 15 workspaces
 
-| # | Route | Page |
+| # | Page | Purpose |
+|---:|---|---|
+| 1 | **Overview** | Live protection status, KPIs, activity, risk distribution, alerts and demo launchers |
+| 2 | **Live Transactions** | Searchable, filterable, sortable stream with a detail drawer and CSV export |
+| 3 | **Transaction Intelligence** | Risk breakdown, signal evidence, location, history and audit for one payment |
+| 4 | **Fraud Investigation** | Case queue, indicators, notes, related payments and decisions |
+| 5 | **Geospatial Intelligence** | Full map and 3D globe, live GPS, location analysis and history |
+| 6 | **Family Approval Centre** | Pending requests with a deadline, plus approve or hold |
+| 7 | **Recovery Operations** | Recovery queue, circular countdown, plus initiate or decline |
+| 8 | **Customer Profiles** | Behavioural baseline, familiar recipients and places, family and history |
+| 9 | **Risk Analytics** | Trends, signal frequency, anomalies and outcomes |
+| 10 | **Scam Pattern Timeline** | Chronology of suspicious events with evidence |
+| 11 | **Notifications** | Security, family, recovery and system channels |
+| 12 | **Audit Trail** | Searchable history of every operation |
+| 13 | **System Health** | Live checks of the API, database, engine, real-time stream and webhooks |
+| 14 | **Reports** | Six reports with a date range, preview and export |
+| 15 | **Settings** | Profile, roles, thresholds, policies, notifications, webhooks and location |
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Vite 5, React Router, Framer Motion |
+| 3D and maps | Three.js with React Three Fiber and Drei, Leaflet with a built-in vector basemap |
+| Charts | Recharts and custom SVG |
+| Backend | Node.js 22, Express 4, server-sent events |
+| Database | SQLite through `node:sqlite` (WAL mode, `BEGIN IMMEDIATE` transactions) |
+| Auth | scrypt password hashing, HMAC-signed tokens, role-based access |
+| Browser-only build | sql.js and an in-page router so the same backend code runs in the browser |
+
+## Project structure
+
+```
+guardian/
+├── server/
+│   └── src/
+│       ├── server.js            # Express app, routes, deadline sweeper
+│       ├── db.js · schema.js    # SQLite connection and schema
+│       ├── seed.js              # 30-day sample dataset sent through the real pipeline
+│       ├── lib/                 # auth, real-time events, geo helpers
+│       ├── services/
+│       │   ├── fraudEngine.js   # explainable risk scoring
+│       │   ├── location.js      # familiar places, impossible travel
+│       │   ├── stateMachine.js  # guarded state transitions
+│       │   ├── operations.js    # ingestion, decisions, approvals, settlement, recovery
+│       │   ├── core.js          # settings, audit, notifications, webhooks
+│       │   └── demo.js          # the two flagship scenarios
+│       └── routes/              # REST API grouped by domain
+├── web/
+│   └── src/
+│       ├── pages/               # the 15 workspaces + sign-in + demo
+│       ├── components/          # layout, 3D shield, globe, map, charts, UI kit
+│       ├── lib/                 # API client, auth, live updates, formatting
+│       ├── styles/              # design tokens and premium layer
+│       └── inpage/              # browser-only backend adapters
+└── docs/screens/                # screenshots of every page
+```
+
+## Configuration
+
+Copy `server/.env.example` and `web/.env.example` and adjust as needed.
+
+| Variable | Where | Purpose |
 |---|---|---|
-| 1 | `/overview` | KPIs, 24-hour activity, risk distribution, alerts, suspicious payments, health summary, quick access, demo launchers |
-| 2 | `/transactions` | Live table with search, status/risk/date/source filters, sorting, pagination, CSV export and a detail drawer (`/transactions/:id`) |
-| 3 | `/intelligence/:id` | Details, risk breakdown, analysis pipeline, signal cards, score composition, location, customer and recipient history, sequence, audit |
-| 4 | `/investigations/:id` | Queue, fraud indicators, location evidence, decisions (release, block, escalate to family, confirm, clear), notes, related transactions, audit |
-| 5 | `/geo` | Full-height map: live GPS, historical and demo points, familiar places, trails, suspicious moves, location panel, history table |
-| 6 | `/approvals/:id` | Pending requests and history, deadline countdown, **APPROVE PAYMENT** / **KEEP PAYMENT ON HOLD** |
-| 7 | `/recovery/:id` | Queue, circular countdown on the backend deadline, **INITIATE PAYMENT RECOVERY** / **DECLINE RECOVERY**, approval and admin details, history |
-| 8 | `/customers/:id` | Baseline, active hours, familiar recipients and locations, transactions, risk history, family, holds, recoveries |
-| 9 | `/analytics` | Volume by risk, score distribution, signal frequency, amount, geography, novelty, velocity, approval/hold/recovery outcomes, cities |
-| 10 | `/timeline` | Chronology of suspicious events with tags and an evidence inspector |
-| 11 | `/notifications` | Security, family, recovery and system channels; read/unread; details and actions |
-| 12 | `/audit` | Searchable, filterable audit log with state changes and JSON details |
-| 13 | `/health` | Live checks: API, database, fraud-engine self-test, notification provider, SSE, webhooks, errors, stuck payments |
-| 14 | `/reports` | Six reports with a date range, preview, and CSV/JSON export |
-| 15 | `/settings` | Profile, password, roles, company, trusted family, thresholds and weights, policies, notifications, webhooks, location, demo |
-| + | `/demo` | Scenario launcher and live progress tracker |
+| `GUARDIAN_JWT_SECRET` | server | Token signing secret. **Required in production.** If unset, a temporary secret is generated on each start. |
+| `GUARDIAN_DB` | server | SQLite file path (default `server/data/guardian.db`) |
+| `GUARDIAN_DEMO_MODE` | server | Set to `false` to hide demo accounts and one-click sign-in |
+| `GUARDIAN_DEMO_PASSWORD` | server | Password for the seeded demo accounts |
+| `GUARDIAN_SMS_PROVIDER_URL` | server | Marks an external SMS or email provider as configured |
+| `GUARDIAN_CORS_ORIGIN` | server | Comma-separated list of allowed origins |
+| `PORT` | server | API port (default `4000`) |
+| `VITE_API_URL` | web | API base URL (default `/api`) |
+| `VITE_MAP_TILE_URL` | web | Raster map tiles. Leave empty to use only the built-in vector basemap. |
 
-## Premium design layer
+## API overview
 
-- **Overview hero:** a 3D shield scene with a glowing halo, a scanning beam, data packets travelling into the shield and a pulsing hexagonal platform. It sits beside a rotating feed of the latest flagged payments and floating status chips.
-- **Geospatial page:** a **3D globe** view (switch between Map and 3D globe). It plots stored transaction coordinates, familiar places and the focus transaction, with an animated arc and the distance, and the camera glides to the selected location.
-- **Ambient background:** drifting gradient orbs with pointer parallax, a faint grid and film grain.
-- **Cards:** a glowing border and inner highlight follow the cursor, 3D tilt on the small cards, and cards slide into place as you scroll.
-- **Motion polish:** a progress bar on page changes, a light sweep on buttons, springy icons and hover effects, pulsing status dots, and toasts with a countdown bar.
-- **Success moments:** a particle burst when funds are recovered and when a family member records a decision.
-- **Reduced motion:** everything respects `prefers-reduced-motion`.
+All endpoints are under `/api` and need a bearer token, except `/api/auth/*`.
 
-## Final report
+| Area | Endpoints |
+|---|---|
+| Auth | `POST /auth/login` · `GET /auth/me` |
+| Transactions | `GET /transactions` · `GET /transactions/:id` · `POST /transactions` |
+| Family approvals | `GET /approvals` · `POST /approvals/:id/decision` *(family only)* |
+| Recovery | `GET /recoveries` · `POST /recoveries/:id/initiate` · `POST /recoveries/:id/decline` *(admin only)* |
+| Investigations | `GET /investigations` · `GET /investigations/:id` · `POST /investigations/:id/decision` · `POST /investigations/:id/notes` |
+| Insights | `GET /overview` · `GET /analytics` · `GET /customers/:id` · `GET /geo` · `GET /timeline` |
+| Platform | `GET /notifications` · `GET /audit` · `GET /health` · `GET /reports/:type` · `GET/PUT /settings/:group` · `/webhooks` |
+| Real-time | `GET /stream` (server-sent events) |
+| Demo | `POST /demo/:scenario/start` · `POST /demo/runs/:id/next` · `GET /demo/runs/:id` |
 
-### Completed and verified
+## Security model
 
-These were tested with Playwright, through the API, or both.
+- **Backend authorisation** of every sensitive action. Only the designated family member can decide an approval, and only administrators can decide a recovery or change settings.
+- **Guarded state changes.** Every status change is a conditional update on status and version, so double clicks and out-of-order requests return `409` instead of applying twice.
+- **Idempotency keys.** Repeating a decision with the same `Idempotency-Key` returns the stored response.
+- **Server-side deadlines.** Approval and recovery windows are stored in the database and enforced by the API (`410 EXPIRED`). Countdowns in the browser are synchronised to the server clock.
+- **Confirmed outcomes only.** A payment is shown as recovered only after the payment simulator confirms the reversal.
+- **Signed webhooks.** Outbound webhooks are signed with HMAC-SHA256 in the `x-guardian-signature` header.
 
-- **Multi-page application.** All 15 workspaces have their own routes, page titles and layouts. The sidebar shows the active page and only lists pages the user's role can open. There is also a top bar with global search (⌘K), a notification centre and a user menu.
-- **Scenario 1, end to end in the browser.** The suspicious payment scored 75–83 and was held in `PENDING_FAMILY_APPROVAL`. An analyst trying to approve it got 403. Priya kept it on hold, the transaction moved to `ON_HOLD`, and a duplicate decision got 409.
-- **Scenario 2, end to end in the browser.** The suspicious payment scored 95. Arjun approved it and the simulator settled it. A recovery window opened automatically with a 5-minute deadline. An analyst got 403 on initiate. Neha initiated recovery, the simulator confirmed the reversal, and the transaction showed **Recovered**.
-- **Recovery expiry.** With a 60-second window, the window expired to `RECOVERY_EXPIRED` and a late initiate was rejected.
-- **Charts and KPIs** are built from database queries. The seed sends 538 transactions through the real engine and resolves outcomes with the real services.
-- **Live GPS.** With permission granted, the page shows real coordinates, accuracy, fix time and distance to the nearest familiar place, and can score a payment at that location (labelled *Live GPS*). With permission denied, it shows an "unavailable" state and never substitutes a position.
-- **No console errors.** No errors were logged on any page, apart from map tile requests blocked in the build sandbox.
-- **Mobile layout.** Pages reflow at phone width (390 px).
-- **Reduced motion.** The `prefers-reduced-motion` setting is respected: the 3D shield stops animating and CSS transitions are disabled.
+## What is real and what is simulated
 
-### Partially implemented, or simulated by design
+| Real | Simulated or not included |
+|---|---|
+| Risk scoring, decisions and state transitions | Payment settlement and reversal (built-in **payment simulator**) |
+| Database persistence, audit trail, notifications | SMS and email delivery (in-app notifications and webhooks only) |
+| Role-based authorisation and deadlines | Machine-learning model (scoring is rules plus a statistical anomaly model) |
+| Browser geolocation when permission is granted | Customer and payment data (fictional seed data) |
 
-- **Payment rail.** Settlement and reversal go through an internal **payment simulator** with configurable delays and failure rate. No real bank or UPI integration is included.
-- **Anomaly model.** The "AI" explanation and anomaly model are a transparent statistical model (a multivariate z-distance) plus rules. There is no trained machine-learning model or LLM. The UI says this.
-- **Notifications.** Delivery is in-app (stored and pushed over SSE) plus HMAC-signed webhooks. SMS and email delivery are not implemented. Setting `GUARDIAN_SMS_PROVIDER_URL` only changes the health check status, so the integration still has to be written.
-- **Read status.** For company channels, read/unread state is shared across all analysts and admins, not tracked per user.
-- **User management.** Adding analyst or admin users from the UI is not implemented. They are seeded. Trusted family members can be added from a customer profile.
-- **Seed data.** The seed covers 8 customers and Indian cities, and it carries a "Database records" tag on screen. It is generated data, but it is processed by the real pipeline.
+## Roadmap
 
-### Configured outside the app
+- [ ] Integration with a real payment provider or UPI
+- [ ] SMS and email delivery for family approval requests
+- [ ] Per-user read status for notifications
+- [ ] User management for analysts and administrators
+- [ ] PostgreSQL option for multi-instance deployments
+- [ ] Automated test suite and CI
 
-- **Production secret:** set `GUARDIAN_JWT_SECRET`.
-- **Map tiles:** the default is CARTO Light. Replace `VITE_MAP_TILE_URL` with a provider you are licensed to use. A vector basemap is built in, so the map still works if tiles are blocked.
-- **Webhooks:** add endpoints in Settings → Webhooks. The signing secret is shown once.
-- **Browser geolocation** requires HTTPS, or `localhost`, and the user's permission.
-- **Production deployment:** you will need a process manager or container, HTTPS, and backups of the SQLite file. For multi-instance deployments, move to Postgres.
+---
+
+<div align="center">
+<sub>Guardian is a demonstration project. Do not use it to move real money without a full security review.</sub>
+</div>
